@@ -28,6 +28,15 @@ namespace RxSQLNotify
 			readonly string ConnectionString;
 			bool _dependencyStarted;
 
+			public RepeatableNotification(SqlCommand template)
+			{
+				ConnectionString = template.Connection.ConnectionString;
+				StartSqlDependency();
+				Notifications = new Subject<SqlCommand>();
+				Notifications.Subscribe(SubscribeChange);
+				SubscribeChange(template);
+			}
+
 			void StartSqlDependency()
 			{
 				if (_dependencyStarted)
@@ -50,15 +59,6 @@ namespace RxSQLNotify
 				{
 					Thread.CurrentPrincipal = principal;
 				}
-			}
-
-			public RepeatableNotification(SqlCommand template)
-			{
-				ConnectionString = template.Connection.ConnectionString;
-				StartSqlDependency();
-				Notifications = new Subject<SqlCommand>();
-				Notifications.Subscribe(SubscribeChange);
-				SubscribeChange(template);
 			}
 
 			void SubscribeChange(SqlCommand template)
